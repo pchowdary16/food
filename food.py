@@ -30,20 +30,20 @@ def main():
             bmi = calculate_bmi(weight_kg, height_cm)
             st.write(f"Calculated BMI: {bmi}")
         
-        allergies = st.radio("Do you have any allergies?", ["No", "Yes"])
+        allergies = st.radio("Do you have any allergies?", ["Select an option", "No", "Yes"], index=0)
         if allergies == "Yes":
             allergy_list = st.text_area("List your allergies")
+        
+        lifestyle_options = ["Select an option", "Sedentary", "Active", "Moderately Active", "Moderately Sedentary", "Mix of Both"]
+        lifestyle = st.selectbox("What is your lifestyle?", lifestyle_options, index=0)
         
         goal = st.multiselect("What is your goal?", [
             "Increase weight", "Decrease weight", "Maintain weight", "Intake specific calories"])
         
-        lifestyle = st.selectbox("What is your lifestyle?", [
-            "Sedentary", "Active", "Moderately Active", "Moderately Sedentary", "Mix of Both"])
-        
-        diet_following = st.radio("Are you following any diet?", ["No", "Yes"])
+        diet_following = st.radio("Are you following any diet?", ["Select an option", "No", "Yes"], index=0)
         if diet_following == "Yes":
             diet_type = st.text_input("What type of diet are you following?")
-        else:
+        elif diet_following == "No":
             preferred_diet = st.text_input("Do you have any particular diet you want to follow?")
 
 if __name__ == "__main__":
