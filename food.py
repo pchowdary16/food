@@ -17,6 +17,9 @@ if "details_filled" not in st.session_state:
 def toggle_details():
     st.session_state.show_details = not st.session_state.show_details
 
+if st.session_state.details_filled:
+    st.sidebar.button("✏️ Edit Details", on_click=toggle_details)
+
 if not st.session_state.details_filled:
     st.sidebar.header("Account Details")
     name = st.sidebar.text_input("Name")
@@ -61,9 +64,6 @@ if not st.session_state.details_filled:
     if st.sidebar.button("Save Details"):
         st.session_state.details_filled = True
         st.session_state.show_details = False
-
-if st.session_state.details_filled:
-    st.sidebar.button("✏️ Edit Details", on_click=toggle_details)
 
 # AI Recipe Maker
 st.header("AI Recipe Maker")
