@@ -3,54 +3,89 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.linear_model import LinearRegression
 
-# Set page title and icon
-st.set_page_config(page_title="AI Recipe Generator", page_icon="🍽️")
+# Streamlit UI
+st.title("💰 Rich or Bankrupt? AI Lifestyle Analyzer")
+st.subheader("Predict Your Net Worth in 5 Years! 🚀")
 
-# --- Profile Section ---
-st.sidebar.header("👤 Create Your Profile")
-name = st.sidebar.text_input("Full Name")
-email = st.sidebar.text_input("Email ID")
-username = st.sidebar.text_input("Username")
-password = st.sidebar.text_input("Password", type="password")
+# User Inputs
+st.sidebar.header("Enter Your Financial Details")
+income = st.sidebar.number_input("Monthly Income (₹)", min_value=0, step=1000)
+rent = st.sidebar.number_input("Rent (₹)", min_value=0, step=500)
+emi = st.sidebar.number_input("EMI (₹)", min_value=0, step=500)
+food = st.sidebar.number_input("Food & Groceries (₹)", min_value=0, step=500)
+fun = st.sidebar.number_input("Entertainment (₹)", min_value=0, step=500)
+crypto = st.sidebar.number_input("Crypto/Investments (₹)", min_value=0, step=500)
+savings = st.sidebar.number_input("Monthly Savings (₹)", min_value=0, step=500)
+extra_expenses = st.sidebar.number_input("Extra Expenses (₹)", min_value=0, step=500)
+emergency_fund = st.sidebar.number_input("Emergency Fund Contribution (₹)", min_value=0, step=500)
 
-if not (name and email and username and password):
-    st.warning("Please complete your profile details to proceed!")
-    st.stop()
+# Calculate Monthly & Yearly Net Savings
+expenses = rent + emi + food + fun + extra_expenses + emergency_fund
+net_savings = income - expenses
+net_worth_now = savings * 12  # Current Yearly Savings
 
-# --- Personal Details Section ---
-st.sidebar.header("📌 Personal Details")
-weight_unit = st.sidebar.radio("Weight Unit", ["kg", "lb"])
-weight = st.sidebar.number_input(f"Weight ({weight_unit})", min_value=1.0, step=0.5)
+def predict_net_worth(years=5):
+    # Dummy ML Model (Linear Regression for Simplicity)
+    years_array = np.array(range(1, years + 1)).reshape(-1, 1)
+    savings_array = np.array([net_worth_now * (1 + 0.08) ** i for i in range(1, years + 1)]).reshape(-1, 1)
+    model = LinearRegression()
+    model.fit(years_array, savings_array)
+    future_net_worth = model.predict(np.array([[years]])).flatten()[0]
+    return future_net_worth
 
-height_unit = st.sidebar.radio("Height Unit", ["cm", "inches", "ft"])
-height = st.sidebar.number_input(f"Height ({height_unit})", min_value=1.0, step=0.5)
+predicted_worth = predict_net_worth()
 
-allergy = st.sidebar.radio("Do you have any allergies?", ["No", "Yes"])
-allergy_list = st.sidebar.text_area("List your allergies", "", disabled=(allergy == "No"))
+# Display Results
+st.subheader("📊 Financial Summary")
+col1, col2 = st.columns(2)
+col1.metric("Monthly Net Savings", f"₹{net_savings}")
+col2.metric("Predicted Net Worth in 5 Years", f"₹{predicted_worth:,.2f}")
 
-diet_type = st.sidebar.multiselect("Diet Preference", ["Vegetarian", "Non-Vegetarian", "Vegan"], default=["Vegetarian"])
-lactose_intolerant = st.sidebar.radio("Are you lactose intolerant?", ["No", "Yes"])
+# Expense Breakdown Bar Graph
+st.subheader("📌 Where Your Money Goes")
+fig, ax = plt.subplots()
+labels = ["Rent", "EMI", "Food", "Entertainment", "Extra Expenses", "Emergency Fund"]
+data = [rent, emi, food, fun, extra_expenses, emergency_fund]
 
-lifestyle = st.sidebar.multiselect("Lifestyle", ["Active", "Sedentary", "Moderately Active", "Moderately Sedentary", "Mix of Active & Sedentary"], default=["Active"])
+# Remove zero values safely
+filtered_data = [(label, value) for label, value in zip(labels, data) if value > 0]
+if filtered_data:
+    filtered_labels, filtered_values = zip(*filtered_data)
+    colors = sns.color_palette("pastel", len(filtered_values))
+    ax.bar(filtered_labels, filtered_values, color=colors)
+    ax.set_ylabel("Amount (₹)")
+    ax.set_xlabel("Expense Categories")
+    ax.set_title("Expense Breakdown")
+    st.pyplot(fig)
+else:
+    st.write("No expenses to display.")
 
-goal = st.sidebar.multiselect("Your Goal", ["Increase Weight", "Decrease Weight", "Maintain Weight"], default=["Maintain Weight"])
+# Money Persona Badge
+st.subheader("🏆 Your Money Persona")
+if predicted_worth > 5000000:
+    st.success("🔥 Smart Investor! You're on track to be wealthy!")
+elif predicted_worth > 1000000:
+    st.info("💡 Balanced Saver! Keep up the good work!")
+else:
+    st.warning("⚠️ YOLO Spender! Consider saving more!")
 
-diet_following = st.sidebar.radio("Are you following any specific diet?", ["No", "Yes"])
-diet_description = st.sidebar.text_area("Describe Your Diet", "", disabled=(diet_following == "No"))
+# AI Money Coach Advice
+st.subheader("💡 AI Money Coach Suggestions")
+advice = []
+if expenses > income:
+    advice.append("You're spending more than you earn! Try cutting entertainment expenses.")
+if savings < (0.2 * income):
+    advice.append("Try saving at least 20% of your income for financial security.")
+if crypto > (0.5 * savings):
+    advice.append("High crypto investment! Diversify your portfolio.")
+if emi > (0.4 * income):
+    advice.append("Your EMI is too high! Consider refinancing or paying off loans earlier.")
+if emergency_fund < (0.1 * income):
+    advice.append("Increase your emergency fund contributions for financial safety.")
 
-# --- Recipe Generation Section ---
-st.title("🍽️ AI Recipe Generator")
-st.subheader("Personalized Recipes Based on Your Preferences")
+for tip in advice:
+    st.write("✔️", tip)
 
-num_people = st.number_input("Number of People to Cook For", min_value=1, step=1, value=1)
-ingredients = st.text_area("Enter Ingredients You Have", "e.g., rice, chicken, spinach, tomatoes")
-
-def generate_recipe(ingredients, num_people):
-    # Dummy recipe generator (replace with an AI model for real recipes)
-    recipe = {
-        "Title": "Healthy Meal Plan",
-        "Ingredients": ingredients.split(","),
-        "Instructions": [
-            "1. Wash and prep ingredients.",
-            "2. Cook in a pan for 20 minutes
+st.caption("💬 Compare with friends & improve your financial future! 🚀")
