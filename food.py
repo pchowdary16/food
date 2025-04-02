@@ -68,10 +68,6 @@ if st.button("Generate Recipe"):
     result = generate_recipe(ingredients, recipe_name, num_people)
     st.success(result)
 
-# Sample Recipe Images
-st.header("Recipe Images")
-st.image("https://source.unsplash.com/600x400/?food", caption="Example Dish", use_column_width=True)
-
 # Apply Black and White Theme
 st.markdown(
     """
