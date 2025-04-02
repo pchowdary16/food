@@ -11,6 +11,7 @@ st.title("AI Recipe Maker Dashboard")
 # Sidebar Toggle Feature
 if "show_details" not in st.session_state:
     st.session_state.show_details = True
+if "details_filled" not in st.session_state:
     st.session_state.details_filled = False
 
 def toggle_details():
