@@ -1,11 +1,15 @@
 import streamlit as st
 import random
 import openai
+import os
 
 def calculate_bmi(weight, height):
     if height > 0:
         return round(weight / ((height / 100) ** 2), 2)
     return None
+
+# Set OpenAI API Key
+openai.api_key = os.getenv("OPENAI_API_KEY")  # Or set directly: openai.api_key = "your_api_key"
 
 st.set_page_config(page_title="AI Recipe Maker", layout="wide")
 st.title("AI Recipe Maker Dashboard")
