@@ -17,10 +17,10 @@ if "details_filled" not in st.session_state:
 def toggle_details():
     st.session_state.show_details = not st.session_state.show_details
 
-if st.session_state.details_filled:
-    st.sidebar.button("✏️ Edit Details", on_click=toggle_details)
+# Always show edit button at the top
+st.sidebar.button("✏️ Edit Details", on_click=toggle_details)
 
-if not st.session_state.details_filled:
+if st.session_state.show_details or not st.session_state.details_filled:
     st.sidebar.header("Account Details")
     name = st.sidebar.text_input("Name")
     email = st.sidebar.text_input("Email")
