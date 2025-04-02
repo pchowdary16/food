@@ -6,9 +6,6 @@ def calculate_bmi(weight, height):
         return round(weight / ((height / 100) ** 2), 2)
     return "Invalid Height"
 
-# Load recipe dataset
-df = pd.read_csv("ai_recipe_dataset_with_quantities.csv")
-
 # Streamlit Dashboard Setup
 st.set_page_config(page_title="AI Recipe Maker", layout="wide")
 st.title("AI Recipe Maker Dashboard")
@@ -53,19 +50,7 @@ recipe_name = st.text_input("Or enter the name of a recipe")
 num_people = st.number_input("Number of people", min_value=1, step=1, value=1)
 
 def generate_recipe(ingredients, recipe_name, num_people):
-    if recipe_name:
-        recipe = df[df["Name"].str.contains(recipe_name, case=False, na=False)]
-    elif ingredients:
-        recipe = df[df["Ingredients"].str.contains(ingredients.split(",")[0], case=False, na=False)]
-    else:
-        return "Please provide ingredients or a recipe name."
-    
-    if recipe.empty:
-        return "Recipe not found. Try different ingredients or a recipe name."
-    
-    selected_recipe = recipe.sample(1).iloc[0]
-    adjusted_ingredients = [f"{item.split(':')[0]}: {float(item.split(':')[1].split()[0]) * num_people} {item.split(':')[1].split()[1]}" for item in selected_recipe["Ingredient_Quantities"].split(", ")]
-    return f"Generated Recipe for {selected_recipe['Name']} (Serves {num_people} people):\n\nIngredients:\n" + "\n".join(adjusted_ingredients) + f"\n\nInstructions:\n{selected_recipe['Instructions']}"
+    return f"Generated Recipe based on {recipe_name if recipe_name else 'given ingredients'} for {num_people} people."
 
 if st.button("Generate Recipe"):
     result = generate_recipe(ingredients, recipe_name, num_people)
