@@ -12,7 +12,7 @@ st.title("AI Recipe Maker Dashboard")
 # Load Recipe Dataset
 def load_recipe_data():
     try:
-        return pd.read_csv("C:\\Users\\prane\\Downloads\\Stremlit")
+        return pd.read_csv("C:\\Users\\prane\\Downloads\\Stremlit\\ai_recipe_dataset_with_quantities.csv")
     except Exception as e:
         st.error(f"Error loading recipe data: {e}")
         return None
