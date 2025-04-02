@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import openai
 
 def calculate_bmi(weight, height):
     if height > 0:
@@ -58,45 +59,25 @@ ingredients = st.text_area("Enter ingredients (comma separated)")
 recipe_name = st.text_input("Or enter the name of a recipe")
 num_people = st.number_input("Number of people", min_value=1, step=1, value=1)
 
-def generate_recipe(ingredients, recipe_name, num_people, preferences):
-    if not ingredients and not recipe_name:
-        return "Please provide ingredients or a recipe name."
+def generate_ai_recipe(ingredients, recipe_name, num_people, preferences):
+    prompt = """
+    Generate a detailed recipe with step-by-step instructions, ingredient measurements adjusted for {num_people} people, and based on the following details:
+    Ingredients: {ingredients}
+    Recipe Name: {recipe_name}
+    Dietary Preferences: {preferences}
+    Provide an elaborate cooking process from start to end, including preparation steps like washing and cutting vegetables, heating oil, and adding ingredients sequentially.
+    """.format(num_people=num_people, ingredients=ingredients, recipe_name=recipe_name, preferences=preferences)
     
-    recipe = f"Generated Recipe for {recipe_name if recipe_name else 'your ingredients'} (Serves {num_people} people)\n"
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "system", "content": "You are a professional chef providing detailed recipes."},
+                  {"role": "user", "content": prompt}]
+    )
     
-    # Generate ingredient list with quantities
-    ingredient_list = ingredients.split(",") if ingredients else ["Flour", "Eggs", "Milk", "Butter"]
-    ingredient_quantities = {item.strip(): round(random.uniform(50, 200) * num_people, 2) for item in ingredient_list}
-    
-    recipe += "\nIngredients:\n"
-    for item, quantity in ingredient_quantities.items():
-        recipe += f"- {quantity} grams of {item}\n"
-    
-    recipe += "\nInstructions:\n"
-    recipe += "1. Gather all ingredients as per the list above.\n"
-    recipe += "2. Prepare ingredients based on your dietary preferences.\n"
-    
-    if "Increase weight" in preferences:
-        recipe += "3. Use high-calorie ingredients like nuts, oils, and dairy.\n"
-    if "Decrease weight" in preferences:
-        recipe += "3. Use low-calorie substitutes and reduce fats.\n"
-    if "Control calorie intake" in preferences:
-        recipe += "3. Measure portion sizes accurately.\n"
-    if allergy_status == "Yes" and allergies:
-        recipe += f"4. Ensure to avoid allergens: {allergies}.\n"
-    
-    recipe += "5. Follow these cooking steps:\n"
-    recipe += "   a. Preheat oven or pan as required.\n"
-    recipe += "   b. Mix dry and wet ingredients properly.\n"
-    recipe += "   c. Cook at the recommended temperature.\n"
-    recipe += "   d. Let the dish rest before serving.\n"
-    
-    recipe += "6. Serve fresh and enjoy your meal!\n"
-    
-    return recipe
+    return response["choices"][0]["message"]["content"].strip()
 
 if st.button("Generate Recipe"):
-    result = generate_recipe(ingredients, recipe_name, num_people, goals)
+    result = generate_ai_recipe(ingredients, recipe_name, num_people, goals)
     st.success(result)
 
 # Sample Recipe Images
