@@ -12,7 +12,7 @@ st.title("AI Recipe Maker Dashboard")
 # Load Recipe Dataset
 def load_recipe_data():
     try:
-        return pd.read_csv("C:\\Users\\prane\\Downloads\\ai_recipe_dataset_with_quantities.csv")
+        return pd.read_csv("C:\\Users\\prane\\Downloads\\Stremlit")
     except Exception as e:
         st.error(f"Error loading recipe data: {e}")
         return None
@@ -92,9 +92,12 @@ def generate_recipe(ingredients, recipe_name, num_people):
         matched_recipe = recipe_data[recipe_data['recipe_name'].str.lower() == recipe_name.lower()]
         if not matched_recipe.empty:
             recipe_details = matched_recipe.iloc[0]
-            ingredients_list = recipe_details['ingredients']
+            base_servings = recipe_details['servings']
+            scale_factor = num_people / base_servings if base_servings > 0 else 1
+            ingredients_list = recipe_details['ingredients'].split("\n")
+            scaled_ingredients = "\n".join([f"{round(float(i.split()[0]) * scale_factor, 2)} {' '.join(i.split()[1:])}" if i[0].isdigit() else i for i in ingredients_list])
             instructions = recipe_details['instructions']
-            return f"### {recipe_name} (Serves {num_people} people)\n\n**Ingredients:**\n{ingredients_list}\n\n**Instructions:**\n{instructions}"
+            return f"### {recipe_name} (Serves {num_people} people)\n\n**Ingredients:**\n{scaled_ingredients}\n\n**Instructions:**\n{instructions}"
         else:
             return "Recipe not found. Try entering ingredients instead."
     elif ingredients:
