@@ -76,4 +76,18 @@ if st.button("Generate Recipe"):
 st.header("Recipe Images")
 st.image("https://source.unsplash.com/600x400/?food", caption="Example Dish", use_column_width=True)
 
-st.markdown("<style>body { background-color: black; color: white; }</style>", unsafe_allow_html=True)
+# Apply Black and White Theme
+st.markdown(
+    """
+    <style>
+        body { 
+            background-color: black; 
+            color: white; 
+        }
+        .stTextInput, .stNumberInput, .stSelectbox, .stRadio, .stMultiselect, .stButton {
+            color: black !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
