@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 def calculate_bmi(weight, height):
     if height > 0:
@@ -7,6 +8,16 @@ def calculate_bmi(weight, height):
 
 st.set_page_config(page_title="AI Recipe Maker", layout="wide")
 st.title("AI Recipe Maker Dashboard")
+
+# Load Recipe Dataset
+def load_recipe_data():
+    try:
+        return pd.read_csv("C:\\Users\\prane\\Downloads\\ai_recipe_dataset_with_quantities.csv")
+    except Exception as e:
+        st.error(f"Error loading recipe data: {e}")
+        return None
+
+recipe_data = load_recipe_data()
 
 # Sidebar Toggle Feature
 if "show_details" not in st.session_state:
@@ -74,14 +85,25 @@ recipe_name = st.text_input("Or enter the name of a recipe")
 num_people = st.number_input("Number of people", min_value=1, step=1, value=1)
 
 def generate_recipe(ingredients, recipe_name, num_people):
-    if not ingredients and not recipe_name:
-        return "Please provide ingredients or a recipe name."
-    recipe = f"Generated Recipe for {recipe_name if recipe_name else 'your ingredients'} (Serves {num_people} people)"
-    return recipe
+    if recipe_data is None:
+        return "Recipe data not available."
+    
+    if recipe_name:
+        matched_recipe = recipe_data[recipe_data['recipe_name'].str.lower() == recipe_name.lower()]
+        if not matched_recipe.empty:
+            recipe_details = matched_recipe.iloc[0]
+            ingredients_list = recipe_details['ingredients']
+            instructions = recipe_details['instructions']
+            return f"### {recipe_name} (Serves {num_people} people)\n\n**Ingredients:**\n{ingredients_list}\n\n**Instructions:**\n{instructions}"
+        else:
+            return "Recipe not found. Try entering ingredients instead."
+    elif ingredients:
+        return "Feature to generate recipes based on ingredients is under development."
+    return "Please provide ingredients or a recipe name."
 
 if st.button("Generate Recipe"):
     result = generate_recipe(ingredients, recipe_name, num_people)
-    st.success(result)
+    st.markdown(result)
 
 # Apply Black and White Theme
 st.markdown(
