@@ -54,3 +54,39 @@ def main():
         # Lifestyle Selection
         lifestyle = st.multiselect("What is your lifestyle?", ["Active", "Sedentary", "Moderately Active", "Moderately Sedentary", "Mix of Active and Sedentary"])
         
+        # Goal Selection
+        goal = st.multiselect("What is your goal?", ["Increase weight", "Decrease weight", "Maintain weight"])
+        
+        # Diet Description
+        diet_following = st.radio("Are you following any diet?", ["No", "Yes"])
+        if diet_following == "Yes":
+            diet_description = st.text_area("Describe your diet")
+        
+    elif choice == "AI Recipe Generator":
+        st.title("🍽️ AI Recipe Generator")
+        
+        # Ingredients Input
+        ingredients = st.text_area("Enter the ingredients you have (comma-separated)")
+        people = st.number_input("How many people are eating?", min_value=1, step=1)
+        
+        if st.button("Generate Recipe"):
+            if ingredients:
+                ingredients_list = [i.strip() for i in ingredients.split(",") if i.strip()]
+                
+                if ingredients_list:
+                    st.success("Here is a customized recipe based on your input:")
+                    st.write(f"👨‍🍳 Using ingredients: **{', '.join(ingredients_list)}** for **{people}** people.")
+                    st.write("### Steps:")
+                    st.write("1. Mix all ingredients together.")
+                    st.write("2. Cook in a pan for 20 minutes.")
+                    st.write("3. Serve hot and enjoy!")
+                else:
+                    st.warning("Please enter at least one valid ingredient.")
+            else:
+                st.warning("Please enter some ingredients.")
+
+        # Display a Food Image
+        st.image("https://source.unsplash.com/800x400/?healthy-food", caption="Delicious Meal", use_column_width=True)
+
+if __name__ == "__main__":
+    main()
