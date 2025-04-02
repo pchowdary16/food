@@ -2,91 +2,78 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
 
-def calculate_bmi(weight_kg, height_cm):
-    if height_cm > 0:
-        return round(weight_kg / ((height_cm / 100) ** 2), 2)
-    return 0
+def calculate_bmi(weight, height):
+    if height > 0:
+        return round(weight / ((height / 100) ** 2), 2)
+    return None
 
-def main():
-    st.sidebar.title("Dashboard")
-    menu = ["Account Details", "Personal Details", "AI Recipe Generator"]
-    choice = st.sidebar.radio("Navigation", menu)
-    
-    if choice == "Account Details":
-        st.title("👤 Account Details")
-        name = st.text_input("Name")
-        email = st.text_input("Email")
-        username = st.text_input("Username")
-        password = st.text_input("Password", type='password')
-    
-    elif choice == "Personal Details":
-        st.title("📋 Personal Details")
-        
-        # Weight Input
-        weight_unit = st.radio("Choose weight unit", ["kg", "lb"])
-        weight = st.number_input("Weight", min_value=0.0, format="%.2f")
-        
-        # Height Input
-        height_unit = st.radio("Choose height unit", ["cm", "inches", "ft"])
-        height = st.number_input("Height", min_value=0.0, format="%.2f")
-        
-        # BMI Calculation
-        if weight > 0 and height > 0:
-            weight_kg = weight if weight_unit == "kg" else weight * 0.453592
-            height_cm = height if height_unit == "cm" else height * 2.54 if height_unit == "inches" else height * 30.48
-            bmi = calculate_bmi(weight_kg, height_cm)
-            st.write(f"Calculated BMI: **{bmi}**")
-        
-        # Allergy Input
-        allergies = st.radio("Do you have any allergies?", ["No", "Yes"])
-        if allergies == "Yes":
-            allergy_list = st.text_area("List your allergies")
-        
-        # Diet Preference
-        diet_pref = st.multiselect("Select your diet preference", ["Vegetarian", "Non-Vegetarian", "Vegan"], default=[])
-        if not diet_pref:
-            st.warning("Please select at least one dietary preference.")
-        
-        # Lactose Intolerance
-        lactose_intolerant = st.radio("Are you lactose intolerant?", ["No", "Yes"])
-        
-        # Lifestyle Selection
-        lifestyle = st.multiselect("What is your lifestyle?", ["Active", "Sedentary", "Moderately Active", "Moderately Sedentary", "Mix of Active and Sedentary"])
-        
-        # Goal Selection
-        goal = st.multiselect("What is your goal?", ["Increase weight", "Decrease weight", "Maintain weight"])
-        
-        # Diet Description
-        diet_following = st.radio("Are you following any diet?", ["No", "Yes"])
-        if diet_following == "Yes":
-            diet_description = st.text_area("Describe your diet")
-        
-    elif choice == "AI Recipe Generator":
-        st.title("🍽️ AI Recipe Generator")
-        
-        # Ingredients Input
-        ingredients = st.text_area("Enter the ingredients you have (comma-separated)")
-        people = st.number_input("How many people are eating?", min_value=1, step=1)
-        
-        if st.button("Generate Recipe"):
-            if ingredients:
-                ingredients_list = [i.strip() for i in ingredients.split(",") if i.strip()]
-                
-                if ingredients_list:
-                    st.success("Here is a customized recipe based on your input:")
-                    st.write(f"👨‍🍳 Using ingredients: **{', '.join(ingredients_list)}** for **{people}** people.")
-                    st.write("### Steps:")
-                    st.write("1. Mix all ingredients together.")
-                    st.write("2. Cook in a pan for 20 minutes.")
-                    st.write("3. Serve hot and enjoy!")
-                else:
-                    st.warning("Please enter at least one valid ingredient.")
-            else:
-                st.warning("Please enter some ingredients.")
+st.set_page_config(page_title="AI Recipe Maker", layout="wide")
+st.title("AI Recipe Maker Dashboard")
 
-        # Display a Food Image
-        st.image("https://source.unsplash.com/800x400/?healthy-food", caption="Delicious Meal", use_column_width=True)
+# Account Details
+st.sidebar.header("Account Details")
+name = st.sidebar.text_input("Name")
+email = st.sidebar.text_input("Email")
+username = st.sidebar.text_input("Username")
+password = st.sidebar.text_input("Password", type="password")
 
-if __name__ == "__main__":
-    main()
+# Personal Details
+st.sidebar.header("Personal Details")
+weight_kg = st.sidebar.number_input("Weight (kg)", min_value=0.0, format="%.2f")
+weight_lb = weight_kg * 2.20462
+st.sidebar.write(f"Weight (lb): {weight_lb:.2f}")
+
+height_cm = st.sidebar.number_input("Height (cm)", min_value=0.0, format="%.2f")
+height_inches = height_cm * 0.393701
+height_feet = height_inches / 12
+st.sidebar.write(f"Height (inches): {height_inches:.2f}")
+st.sidebar.write(f"Height (feet): {height_feet:.2f}")
+
+bmi = calculate_bmi(weight_kg, height_cm)
+st.sidebar.write(f"Calculated BMI: {bmi if bmi else 'N/A'}")
+
+allergy_status = st.sidebar.radio("Do you have any allergies?", ("Yes", "No"))
+if allergy_status == "Yes":
+    allergies = st.sidebar.text_area("List your allergies")
+
+goals = st.sidebar.multiselect(
+    "What is your goal?",
+    ["Increase weight", "Decrease weight", "Maintain weight", "Control calorie intake"]
+)
+
+lifestyle = st.sidebar.selectbox(
+    "What is your lifestyle?",
+    ["Sedentary", "Moderately sedentary", "Moderately active", "Active", "Mix of both"]
+)
+
+diet_status = st.sidebar.radio("Are you following a specific diet?", ("Yes", "No"))
+if diet_status == "Yes":
+    diet_type = st.sidebar.text_input("What type of diet are you following?")
+else:
+    preferred_diet = st.sidebar.text_input("Do you have any particular diet you want to follow?")
+
+# AI Recipe Maker
+st.header("AI Recipe Maker")
+
+ingredients = st.text_area("Enter ingredients (comma separated)")
+recipe_name = st.text_input("Or enter the name of a recipe")
+num_people = st.number_input("Number of people", min_value=1, step=1, value=1)
+
+def generate_recipe(ingredients, recipe_name, num_people):
+    if not ingredients and not recipe_name:
+        return "Please provide ingredients or a recipe name."
+    recipe = f"Generated Recipe for {recipe_name if recipe_name else 'your ingredients'} (Serves {num_people} people)"
+    return recipe
+
+if st.button("Generate Recipe"):
+    result = generate_recipe(ingredients, recipe_name, num_people)
+    st.success(result)
+
+# Sample Recipe Images
+st.header("Recipe Images")
+st.image("https://source.unsplash.com/600x400/?food", caption="Example Dish", use_column_width=True)
+
+st.markdown("<style>body { background-color: black; color: white; }</style>", unsafe_allow_html=True)
