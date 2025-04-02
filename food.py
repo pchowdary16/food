@@ -1,6 +1,5 @@
 import streamlit as st
 import random
-import openai
 import os
 import numpy as np
 import pandas as pd
@@ -12,9 +11,6 @@ def calculate_bmi(weight, height):
     if height > 0:
         return round(weight / ((height / 100) ** 2), 2)
     return None
-
-# Set OpenAI API Key
-openai.api_key = os.getenv("OPENAI_API_KEY")  # Or set directly: openai.api_key = "your_api_key"
 
 st.set_page_config(page_title="AI Recipe Maker", layout="wide")
 st.title("AI Recipe Maker Dashboard")
@@ -68,25 +64,14 @@ ingredients = st.text_area("Enter ingredients (comma separated)")
 recipe_name = st.text_input("Or enter the name of a recipe")
 num_people = st.number_input("Number of people", min_value=1, step=1, value=1)
 
-def generate_ai_recipe(ingredients, recipe_name, num_people, preferences):
-    prompt = """
-    Generate a detailed recipe with step-by-step instructions, ingredient measurements adjusted for {num_people} people, and based on the following details:
-    Ingredients: {ingredients}
-    Recipe Name: {recipe_name}
-    Dietary Preferences: {preferences}
-    Provide an elaborate cooking process from start to end, including preparation steps like washing and cutting vegetables, heating oil, and adding ingredients sequentially.
-    """.format(num_people=num_people, ingredients=ingredients, recipe_name=recipe_name, preferences=preferences)
-    
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "system", "content": "You are a professional chef providing detailed recipes."},
-                  {"role": "user", "content": prompt}]
-    )
-    
-    return response["choices"][0]["message"]["content"].strip()
+def generate_recipe(ingredients, recipe_name, num_people):
+    if not ingredients and not recipe_name:
+        return "Please provide ingredients or a recipe name."
+    recipe = f"Generated Recipe for {recipe_name if recipe_name else 'your ingredients'} (Serves {num_people} people)"
+    return recipe
 
 if st.button("Generate Recipe"):
-    result = generate_ai_recipe(ingredients, recipe_name, num_people, goals)
+    result = generate_recipe(ingredients, recipe_name, num_people)
     st.success(result)
 
 # Sample Recipe Images
@@ -108,4 +93,3 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
