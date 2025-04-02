@@ -57,14 +57,29 @@ ingredients = st.text_area("Enter ingredients (comma separated)")
 recipe_name = st.text_input("Or enter the name of a recipe")
 num_people = st.number_input("Number of people", min_value=1, step=1, value=1)
 
-def generate_recipe(ingredients, recipe_name, num_people):
+def generate_recipe(ingredients, recipe_name, num_people, preferences):
     if not ingredients and not recipe_name:
         return "Please provide ingredients or a recipe name."
-    recipe = f"Generated Recipe for {recipe_name if recipe_name else 'your ingredients'} (Serves {num_people} people)"
+    
+    recipe = f"Generated Recipe for {recipe_name if recipe_name else 'your ingredients'} (Serves {num_people} people)\n"
+    recipe += "\nInstructions:\n"
+    recipe += "1. Gather all ingredients.\n"
+    recipe += "2. Prepare ingredients based on your dietary preferences.\n"
+    
+    if "Increase weight" in preferences:
+        recipe += "3. Add high-calorie ingredients like nuts, oils, and dairy.\n"
+    if "Decrease weight" in preferences:
+        recipe += "3. Use low-calorie substitutes and reduce fats.\n"
+    if "Control calorie intake" in preferences:
+        recipe += "3. Measure portion sizes accurately.\n"
+    if allergy_status == "Yes" and allergies:
+        recipe += f"4. Avoid allergens: {allergies}.\n"
+    
+    recipe += "5. Cook and serve fresh. Enjoy!"
     return recipe
 
 if st.button("Generate Recipe"):
-    result = generate_recipe(ingredients, recipe_name, num_people)
+    result = generate_recipe(ingredients, recipe_name, num_people, goals)
     st.success(result)
 
 # Sample Recipe Images
