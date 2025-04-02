@@ -2,6 +2,11 @@ import streamlit as st
 import random
 import openai
 import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
 
 def calculate_bmi(weight, height):
     if height > 0:
@@ -103,3 +108,4 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
