@@ -11,21 +11,18 @@ st.title("AI Recipe Maker Dashboard")
 # Sidebar Toggle Feature
 if "show_details" not in st.session_state:
     st.session_state.show_details = True
+    st.session_state.details_filled = False
 
 def toggle_details():
     st.session_state.show_details = not st.session_state.show_details
 
-st.sidebar.button("✏️ Edit Details", on_click=toggle_details)
-
-if st.session_state.show_details:
-    # Account Details
+if not st.session_state.details_filled:
     st.sidebar.header("Account Details")
     name = st.sidebar.text_input("Name")
     email = st.sidebar.text_input("Email")
     username = st.sidebar.text_input("Username")
     password = st.sidebar.text_input("Password", type="password")
 
-    # Personal Details
     st.sidebar.header("Personal Details")
     weight_kg = st.sidebar.number_input("Weight (kg)", min_value=0.0, format="%.2f")
     weight_lb = weight_kg * 2.20462
@@ -59,9 +56,17 @@ if st.session_state.show_details:
         diet_type = st.sidebar.text_input("What type of diet are you following?")
     else:
         preferred_diet = st.sidebar.text_input("Do you have any particular diet you want to follow?")
+    
+    if st.sidebar.button("Save Details"):
+        st.session_state.details_filled = True
+        st.session_state.show_details = False
+
+if st.session_state.details_filled:
+    st.sidebar.button("✏️ Edit Details", on_click=toggle_details)
 
 # AI Recipe Maker
 st.header("AI Recipe Maker")
+st.markdown("<style>.block-container{max-width: 80%;}</style>", unsafe_allow_html=True)
 
 ingredients = st.text_area("Enter ingredients (comma separated)")
 recipe_name = st.text_input("Or enter the name of a recipe")
@@ -92,4 +97,3 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
