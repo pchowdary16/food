@@ -1,4 +1,5 @@
 import streamlit as st
+import random
 
 def calculate_bmi(weight, height):
     if height > 0:
@@ -62,20 +63,36 @@ def generate_recipe(ingredients, recipe_name, num_people, preferences):
         return "Please provide ingredients or a recipe name."
     
     recipe = f"Generated Recipe for {recipe_name if recipe_name else 'your ingredients'} (Serves {num_people} people)\n"
+    
+    # Generate ingredient list with quantities
+    ingredient_list = ingredients.split(",") if ingredients else ["Flour", "Eggs", "Milk", "Butter"]
+    ingredient_quantities = {item.strip(): round(random.uniform(50, 200) * num_people, 2) for item in ingredient_list}
+    
+    recipe += "\nIngredients:\n"
+    for item, quantity in ingredient_quantities.items():
+        recipe += f"- {quantity} grams of {item}\n"
+    
     recipe += "\nInstructions:\n"
-    recipe += "1. Gather all ingredients.\n"
+    recipe += "1. Gather all ingredients as per the list above.\n"
     recipe += "2. Prepare ingredients based on your dietary preferences.\n"
     
     if "Increase weight" in preferences:
-        recipe += "3. Add high-calorie ingredients like nuts, oils, and dairy.\n"
+        recipe += "3. Use high-calorie ingredients like nuts, oils, and dairy.\n"
     if "Decrease weight" in preferences:
         recipe += "3. Use low-calorie substitutes and reduce fats.\n"
     if "Control calorie intake" in preferences:
         recipe += "3. Measure portion sizes accurately.\n"
     if allergy_status == "Yes" and allergies:
-        recipe += f"4. Avoid allergens: {allergies}.\n"
+        recipe += f"4. Ensure to avoid allergens: {allergies}.\n"
     
-    recipe += "5. Cook and serve fresh. Enjoy!"
+    recipe += "5. Follow these cooking steps:\n"
+    recipe += "   a. Preheat oven or pan as required.\n"
+    recipe += "   b. Mix dry and wet ingredients properly.\n"
+    recipe += "   c. Cook at the recommended temperature.\n"
+    recipe += "   d. Let the dish rest before serving.\n"
+    
+    recipe += "6. Serve fresh and enjoy your meal!\n"
+    
     return recipe
 
 if st.button("Generate Recipe"):
